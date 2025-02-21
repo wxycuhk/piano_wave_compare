@@ -177,8 +177,8 @@ class Audiowave:
         self.wavewidth=2
         self.wavechannel=1
         self.framerate = 48000
-        self.fps=48
-        self.output_path = r'C:\Users\wxycuhk\Desktop\piano_haptic'
+        self.fps = 576
+        self.output_path = r'C:\Users\WANG Xingyu\Desktop\Parsons\piano_audio'
         self.filename = 'test.wav'
         self.filename1 = 'test1.wav'
         self.Timedata=[]
@@ -327,7 +327,7 @@ class Audiowave:
         while self.sound_active:
             if self.start_recording:
                 t00 = time.time()
-                data=self.stream.read(self.waveCHUNK) #录音
+                data=self.stream.read(self.waveCHUNK, exception_on_overflow = False) #录音
 
 
                 self.data = data
@@ -448,7 +448,7 @@ def plot_piano_data(path_pos, path_vel, path_acc):
 
     # Plot the wave file recorded IN AX[2]
     # Read the wave file
-    with wave.open(r'C:\Users\wxycuhk\Desktop\piano_haptic\test.wav', 'rb') as wf:
+    with wave.open(r'C:\Users\WANG Xingyu\Desktop\Parsons\piano_audio\test.wav', 'rb') as wf:
         # Read the wave data
         nframes = wf.getnframes() # Number of frames
         print('Frames:', nframes)
@@ -581,7 +581,7 @@ def acceleration_calculation(file_path_intput, file_path_output, column_index):
 if __name__ == "__main__":
     p = piano(verbose = True)
     #wave = piano_wave()
-    p.open_serial("COM13", 115200)
+    p.open_serial("COM10", 115200)
     a.open_stream()
    # wave.sound_channel_open()
     time.sleep(1)
@@ -590,7 +590,7 @@ if __name__ == "__main__":
     duration = 5000
     recorded = False
 
-    # Press 'p' to start recording, 's' to stop recording, 'r' to read recording
+ 
     while(not recorded):
         if time.time() - prev_time > 0.1:
             print("[Recording] " if p.piano_recording else "", end="")
@@ -630,7 +630,7 @@ if __name__ == "__main__":
     p.piano_active = False
     acceleration_calculation("piano_velocity.csv", "piano_acceleration.csv", 1)
     plot_piano_data("piano_recording.csv", "piano_velocity.csv", "piano_acceleration.csv")
-    with wave.open(r'C:\Users\wxycuhk\Desktop\piano_haptic\test.wav', 'rb') as wf:
+    with wave.open(r'C:\Users\WANG Xingyu\Desktop\Parsons\piano_audio\test.wav', 'rb') as wf:
         # Read the wave data
         nframes = wf.getnframes() # Number of frames
         n_channels = wf.getnchannels() # Number of channels
@@ -652,7 +652,7 @@ if __name__ == "__main__":
 
     # Get the peaks and valleys of the velocity data & Rms data
     try:
-        vel_peaks = get_peaks_from_csv("piano_velocity.csv", 1, 8000, 10)
+        vel_peaks = get_peaks_from_csv("piano_velocity.csv", 1, 2000, 10)
         print("Peaks of the velocity data:")
         for point in vel_peaks["maxima"]:
             print(f"velocity peaks: {vel_peaks["maxima"]}")
@@ -664,7 +664,7 @@ if __name__ == "__main__":
         print("Error getting peaks from velocity data:", e)
 
     try:
-        rms_peaks = get_peaks_from_csv("RMS_filtered_data.csv", 1, 130, 1)
+        rms_peaks = get_peaks_from_csv("RMS_filtered_data.csv", 1, 50, 1)
         print("Peaks of the RMS data:")
         press_sound = rms_peaks["maxima"]
         print(f"SPL peaks: {rms_peaks["maxima"]}")
@@ -675,7 +675,7 @@ if __name__ == "__main__":
         print("Error getting peaks from RMS data:", e)
     
     try:
-        acc_peaks = get_peaks_from_csv("piano_acceleration.csv", 1, 4000, 10)
+        acc_peaks = get_peaks_from_csv("piano_acceleration.csv", 1, 1000, 10)
         print("Peaks of the acceleration data:")
         for point in acc_peaks["maxima"]:
             print(f"Acceleration peaks: {acc_peaks["maxima"]}")
@@ -706,6 +706,7 @@ if __name__ == "__main__":
         print("Data saved to RMS_acc_match_gp2.csv")
     else:
         print("Number of valleys and peaks do not match")
+        print(f"Number of valleys: {len(press_acc)}", f"; Number of peaks: {len(press_sound)}")
     #plot_piano_data("piano_recording.csv", "piano_velocity.csv")
     print("End of program")
 
